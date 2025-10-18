@@ -1,6 +1,11 @@
 """Configuration settings for Nova Agent API."""
 
+import os
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 class Settings(BaseSettings):
@@ -16,23 +21,11 @@ class Settings(BaseSettings):
     port: int = 8000
     reload: bool = True
     
-    # Database Settings
-    database_url: str = "postgresql://nova_user:nova_password@localhost:5432/nova_api"
-    
-    # Redis Settings
-    redis_url: str = "redis://localhost:6379"
-    
-    # Security
-    secret_key: str = "your-secret-key-here"
-    algorithm: str = "HS256"
-    access_token_expire_minutes: int = 30
-    
     # Groq Settings
-    groq_api_key: str = "your-groq-api-key-here"
-    groq_model: str = "llama3-8b-8192"
+    groq_api_key: str = os.getenv("GROQ_API_KEY", "your-groq-api-key-here")
+    groq_model: str = os.getenv("GROQ_MODEL", "llama3-8b-8192")
     
     class Config:
-        env_file = ".env"
         case_sensitive = False
 
 

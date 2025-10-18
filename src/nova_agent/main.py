@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
-from .infrastructure.api.endpoints import agent_router, chat_router
+from .infrastructure.api.endpoints import chat_router
 
 
 def create_app() -> FastAPI:
@@ -40,7 +40,6 @@ def create_app() -> FastAPI:
         }
     
     # Include routers
-    app.include_router(agent_router)
     app.include_router(chat_router)
     
     return app

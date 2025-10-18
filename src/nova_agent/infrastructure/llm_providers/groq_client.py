@@ -1,21 +1,21 @@
 """Groq LLM client with LangGraph and LangChain integration."""
 
-import asyncio
 from typing import AsyncGenerator, Dict, Any, List
-import json
 
-from langchain_groq import ChatGroq
+
+from langchain_groq.chat_models import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.prompts import ChatPromptTemplate
-from sse_starlette.sse import EventSourceResponse
+
 
 from nova_agent.config import settings
 
 
 class ChatState(Dict[str, Any]):
     """State for the chat graph."""
+
     messages: List[Dict[str, Any]]
     response: str = ""
 
@@ -28,7 +28,7 @@ class GroqClient:
             groq_api_key=settings.groq_api_key,
             model_name=settings.groq_model,
             temperature=0.7,
-            streaming=True
+            streaming=True,
         )
         self.memory = MemorySaver()
         self.graph = self._build_graph()
@@ -49,10 +49,15 @@ class GroqClient:
                     lc_messages.append(AIMessage(content=msg["content"]))
 
             # Create prompt template
-            prompt = ChatPromptTemplate.from_messages([
-                ("system", "You are a helpful AI assistant. Provide clear, concise, and helpful responses."),
-                *[(msg.type, msg.content) for msg in lc_messages]
-            ])
+            prompt = ChatPromptTemplate.from_messages(
+                [
+                    (
+                        "system",
+                        "You are a helpful AI assistant. Provide clear, concise, and helpful responses.",
+                    ),
+                    *[(msg.type, msg.content) for msg in lc_messages],
+                ]
+            )
 
             # Generate response
             chain = prompt | self.llm
@@ -70,9 +75,7 @@ class GroqClient:
         return workflow.compile(checkpointer=self.memory)
 
     async def stream_chat_completion(
-        self,
-        messages: List[Dict[str, Any]],
-        thread_id: str = None
+        self, messages: List[Dict[str, Any]], thread_id: str = None
     ) -> AsyncGenerator[str, None]:
         """Stream chat completion using Groq with LangGraph."""
 
@@ -94,13 +97,11 @@ class GroqClient:
             # Use direct Groq streaming for simplicity
             stream = self.llm.astream(last_user_message)
             async for chunk in stream:
-                if hasattr(chunk, 'content') and chunk.content:
+                if hasattr(chunk, "content") and chunk.content:
                     yield chunk.content
 
     async def chat_completion(
-        self,
-        messages: List[Dict[str, Any]],
-        thread_id: str = None
+        self, messages: List[Dict[str, Any]], thread_id: str = None
     ) -> Dict[str, Any]:
         """Non-streaming chat completion using LangGraph."""
 
@@ -112,7 +113,7 @@ class GroqClient:
 
         return {
             "response": final_state["response"],
-            "thread_id": config["configurable"]["thread_id"]
+            "thread_id": config["configurable"]["thread_id"],
         }
 
 
