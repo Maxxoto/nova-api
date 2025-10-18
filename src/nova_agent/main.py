@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
+from .infrastructure.api.endpoints import agent_router, chat_router
 
 
 def create_app() -> FastAPI:
@@ -37,6 +38,10 @@ def create_app() -> FastAPI:
             "version": settings.api_version,
             "docs": "/docs"
         }
+    
+    # Include routers
+    app.include_router(agent_router)
+    app.include_router(chat_router)
     
     return app
 

@@ -1,8 +1,12 @@
 """FastAPI endpoints for Nova Agent API."""
 
+import json
 from uuid import UUID
+from typing import List, Dict, Any
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from pydantic import BaseModel
+from sse_starlette.sse import EventSourceResponse
 
 from ....application.dto import CreateAgentDTO, UpdateAgentDTO
 from ....application.use_cases import CreateAgentUseCase, GetAgentUseCase, UpdateAgentUseCase
@@ -11,9 +15,22 @@ from ....domain.entities import Agent
 from ....domain.events import AgentCreated, AgentUpdated
 from ....domain.exceptions import AgentNotFound, InvalidAgentStatus
 from ...database.repositories import SQLAgentRepository
+from ...llm.groq_client import groq_client
 
-# Create router
+# Create routers
 agent_router = APIRouter(prefix="/agents", tags=["agents"])
+chat_router = APIRouter(prefix="/sse", tags=["chat"])
+
+
+# Pydantic models for chat
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+
+class ChatCompletionRequest(BaseModel):
+    messages: List[ChatMessage]
+    thread_id: str = None
 
 
 def get_agent_repository():
@@ -145,3 +162,55 @@ async def list_agents(repo: SQLAgentRepository = Depends(get_agent_repository)):
         }
         for agent in agents
     ]
+
+
+@chat_router.post("/chat-completion")
+async def chat_completion_stream(
+    request: ChatCompletionRequest,
+    request_obj: Request
+):
+    """Stream chat completion using Groq with LangGraph via Server-Sent Events."""
+    
+    async def event_generator():
+        """Generate SSE events from Groq streaming response."""
+        try:
+            # Convert messages to dict format
+            messages_dict = [{"role": msg.role, "content": msg.content} for msg in request.messages]
+            
+            # Stream the response
+            async for chunk in groq_client.stream_chat_completion(
+                messages=messages_dict,
+                thread_id=request.thread_id
+            ):
+                if await request_obj.is_disconnected():
+                    break
+                
+                # Send each chunk as an SSE event
+                yield {
+                    "event": "message",
+                    "data": json.dumps({
+                        "content": chunk,
+                        "type": "chunk"
+                    })
+                }
+            
+            # Send completion event
+            yield {
+                "event": "complete",
+                "data": json.dumps({
+                    "type": "complete",
+                    "message": "Stream completed"
+                })
+            }
+            
+        except Exception as e:
+            # Send error event
+            yield {
+                "event": "error",
+                "data": json.dumps({
+                    "type": "error",
+                    "message": f"Error during streaming: {str(e)}"
+                })
+            }
+    
+    return EventSourceResponse(event_generator())

@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     
+    # Groq Settings
+    groq_api_key: str = "your-groq-api-key-here"
+    groq_model: str = "llama3-8b-8192"
+    
     class Config:
         env_file = ".env"
         case_sensitive = False
