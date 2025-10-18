@@ -1,7 +1,10 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*$py.class
+*.pyo
+*.pyd
+*.pyc
+
 
 # C extensions
 *.so
@@ -22,8 +25,11 @@ var/
 wheels/
 share/python-wheels/
 *.egg-info/
-.installed.cfg
 *.egg
+build/
+develop-eggs/
+.eggs/
+.installed.cfg
 MANIFEST
 
 # PyInstaller
