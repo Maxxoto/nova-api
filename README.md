@@ -1,286 +1,93 @@
 # Nova Agent API
 
-A powerful agent-based API service built with FastAPI and domain-driven design architecture.
+A powerful agent-based API service built with FastAPI and Hexagonal Architecture.
 
-## Project Structure
+## Architecture Layers
 
-```
-nova-api/
-├── .github/                 # GitHub workflows and configurations
-├── notebooks/               # Jupyter notebooks for data analysis
-├── data/                    # Data files and datasets
-├── src/                     # Source code
-│   └── nova_agent/          # Main package
-│       ├── __init__.py      # Package initialization
-│       ├── config.py        # Application configuration
-│       ├── main.py          # FastAPI application
-│       ├── domain/          # Domain layer
-│       │   ├── entities/    # Domain entities
-│       │   ├── value_objects/ # Value objects
-│       │   ├── events/      # Domain events
-│       │   └── exceptions/  # Domain exceptions
-│       ├── application/     # Application layer
-│       │   ├── use_cases/   # Business use cases
-│       │   ├── services/    # Application services
-│       │   └── dto/         # Data transfer objects
-│       └── infrastructure/  # Infrastructure layer
-│           ├── database/    # Database implementations
-│           ├── api/         # API endpoints
-│           └── events/      # Event handlers
-├── static/                  # Static files (CSS, JS, images)
-├── tests/                   # Test files
-├── Makefile                 # Build and development commands
-├── docker-compose.yaml      # Docker services configuration
-├── Dockerfile               # Container definition
-└── pyproject.toml          # Python project configuration
-```
+This project follows Hexagonal Architecture with clear separation of concerns:
 
-## Prerequisites
+### Core Layer (Domain)
+- **Entities**: `AgentState`, `Plan` - Pure business objects
+- **Ports** - Interface definitions
+- **Policies**: `SafetyPolicy` - Business rules and validation
+- *No external dependencies*
 
-- Python 3.11 or higher
-- Docker and Docker Compose (optional, for containerized deployment)
-- PostgreSQL (for production)
-- Redis (for caching and sessions)
+### Application Layer (Use Cases)
+- **Use Cases** - Business logic
+- **Services** - Application logic and function
+- *Depends only on Core ports*
 
-## Installation
+### Adapters Layer (Infrastructure)
+- **LLM Adapters**
+- **Memory Adapters**
+- **Tool Adapters**
+- *Implements Core port interfaces*
 
-### Method 1: Using uv (Recommended)
+### Infrastructure Layer (DI, Database, Cache, etc)
+- **DependencyContainer** - Wires adapters to ports
+- *Manages service lifecycle*
 
-1. **Clone the repository:**
+### Interfaces Layer (Agent Interface e.g: HTTP, SSE , WebSocket)
+- **FastAPI Controllers** - HTTP endpoints
+- **CLI For Testing**
+- *Thin layer delegating to Application*
+
+## Quick Start with uv
+
+### Installation
+
+1. **Clone and install dependencies:**
    ```bash
    git clone <repository-url>
    cd nova-api
-   ```
-
-2. **Install dependencies with uv:**
-   ```bash
    uv sync
    ```
 
-3. **Activate the virtual environment:**
+2. **Activate virtual environment:**
    ```bash
-   source .venv/bin/activate  # On Unix/macOS
+   source .venv/bin/activate  # Unix/macOS
    # or
-   .venv\Scripts\activate     # On Windows
+   .venv\Scripts\activate     # Windows
    ```
 
-### Method 2: Using pip (Alternative)
+### Running the Application
 
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd nova-api
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   pip install -e .
-   ```
-
-3. **Install development dependencies:**
-   ```bash
-   pip install -e ".[dev]"
-   ```
-
-### Method 2: Using Docker (Recommended)
-
-1. **Build and run with Docker Compose:**
-   ```bash
-   docker-compose up --build
-   ```
-
-   This will start:
-   - API server on port 8000
-   - PostgreSQL on port 5432
-   - Redis on port 6379
-
-## Running the Application
-
-### Development Mode
-
-1. **Start the development server with uv:**
-   ```bash
-   uv run uvicorn src.nova_agent.main:app --reload --host 0.0.0.0 --port 8000
-   ```
-
-   Or use the Makefile:
-   ```bash
-   make run-dev
-   ```
-
-2. **Using uvx for one-off commands:**
-   ```bash
-   uvx uvicorn src.nova_agent.main:app --reload --host 0.0.0.0 --port 8000
-   ```
-
-2. **Access the API:**
-   - API: http://localhost:8000
-   - Documentation: http://localhost:8000/docs
-   - Health check: http://localhost:8000/health
-
-### Production Mode
-
-1. **Using Docker:**
-   ```bash
-   docker-compose -f docker-compose.prod.yaml up -d
-   ```
-
-2. **Using the Makefile:**
-   ```bash
-   make run-prod
-   ```
-
-## Available Commands
-
-### Makefile Commands
-
+**Start the Hexagonal Architecture API:**
 ```bash
-make install      # Install dependencies
-make test         # Run tests
-make lint         # Run linting
-make format       # Format code
-make clean        # Clean build artifacts
-make run-dev      # Run development server
-make run-prod     # Run production server
+uv run uvicorn src.interfaces.api.fastapi_app:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Docker Commands
+**Access the API:**
+- API: http://localhost:8000
+- Documentation: http://localhost:8000/docs
+- Health check: http://localhost:8000/health
+
+### Development Commands
 
 ```bash
-# Build and start all services
-docker-compose up --build
-
-# Start services in background
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-
-# Run tests in container
-docker-compose run api pytest
-```
-
-## API Endpoints
-
-### Agents Management
-
-- `POST /agents` - Create a new agent
-- `GET /agents` - List all agents
-- `GET /agents/{agent_id}` - Get agent by ID
-- `PUT /agents/{agent_id}` - Update agent
-
-### Health and Info
-
-- `GET /` - Root endpoint with API info
-- `GET /health` - Health check
-
-## Configuration
-
-Environment variables can be set in a `.env` file:
-
-```env
-# API Settings
-API_TITLE=Nova Agent API
-API_VERSION=0.1.0
-API_DESCRIPTION=A powerful agent-based API service
-
-# Server Settings
-HOST=0.0.0.0
-PORT=8000
-RELOAD=true
-
-# Database Settings
-DATABASE_URL=postgresql://nova_user:nova_password@localhost:5432/nova_api
-
-# Redis Settings
-REDIS_URL=redis://localhost:6379
-
-# Security
-SECRET_KEY=your-secret-key-here
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-```
-
-## Testing
-
-### Run Tests
-
-```bash
-# Run all tests with uv
+# Run tests
 uv run pytest
 
-# Run tests with coverage
-uv run pytest --cov=src.nova_agent
-
-# Run specific test file
-uv run pytest tests/test_example_agent_api.py
-
-# Run tests in Docker
-docker-compose run api pytest
-```
-
-### Test Structure
-
-- `tests/` - Contains all test files
-- `tests/conftest.py` - Pytest fixtures and configuration
-- `tests/test_example_agent_api.py` - Example tests for domain entities
-
-## Development
-
-### Code Quality
-
-```bash
 # Format code
-black src/ tests/
+uv run black src/ tests/
 
 # Lint code
-flake8 src/ tests/
+uv run flake8 src/ tests/
 
 # Type checking
-mypy src/
+uv run mypy src/
 ```
 
-### Pre-commit Hooks
+## Architecture Flow
 
-Install pre-commit hooks:
-
-```bash
-pre-commit install
+```
+Interfaces → Application → Core ← Adapters ← Infrastructure
 ```
 
-## Deployment
-
-### Docker Deployment
-
-1. **Build the image:**
-   ```bash
-   docker build -t nova-agent-api .
-   ```
-
-2. **Run the container:**
-   ```bash
-   docker run -p 8000:8000 nova-agent-api
-   ```
-
-### Cloud Deployment
-
-The project includes Docker configuration for easy deployment to cloud platforms like:
-- AWS ECS
-- Google Cloud Run
-- Azure Container Instances
-- Heroku
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
+- **Dependencies flow inward** - Outer layers depend on inner layers
+- **Core layer has no dependencies** on outer layers
+- **Port interfaces define boundaries** between layers
 
 ## License
 
-This project is licensed under the MIT License.
+MIT License
