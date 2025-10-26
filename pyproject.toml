@@ -37,6 +37,7 @@ dependencies = [
     "ruff>=0.14.2",
     "pytest-asyncio>=1.2.0",
     "pytest>=8.4.2",
+    "langgraph-cli[inmem]>=0.4.4",
 ]
 
 [project.optional-dependencies]

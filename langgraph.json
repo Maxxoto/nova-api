@@ -1,0 +1,11 @@
+{
+    "$schema": "https://langgra.ph/schema.json",
+    "dependencies": [
+        "."
+    ],
+    "graphs": {
+        "nova_agent": "./src/studio.py:graph"
+    },
+    "env": ".env",
+    "image_distro": "wolfi"
+}

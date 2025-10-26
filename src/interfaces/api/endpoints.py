@@ -1,30 +1,31 @@
 """FastAPI endpoints for Nova Agent API."""
 
 import json
-from typing import List
 
 from fastapi import APIRouter, Request, Depends
 from sse_starlette.sse import EventSourceResponse
 
-from core.entities.chat_message import ChatMessage, ChatCompletionRequest
+from core.entities.chat_message import ChatCompletionRequest
 from application.services.chat_service import ChatService
 
 
-# Create router
+# Create routers
 chat_router = APIRouter(prefix="/sse", tags=["chat"])
 
 
+# Dependency for ChatService
 def get_chat_service() -> ChatService:
     """Get chat service instance to avoid circular imports."""
     from infrastructure.di import get_chat_service as _get_chat_service
+
     return _get_chat_service()
 
 
 @chat_router.post("/chat-completion")
 async def chat_completion_stream(
-    request: ChatCompletionRequest, 
+    request: ChatCompletionRequest,
     request_obj: Request,
-    chat_service: ChatService = Depends(get_chat_service)
+    chat_service: ChatService = Depends(get_chat_service),
 ):
     """Stream chat completion using hexagonal architecture via Server-Sent Events."""
 

@@ -1,11 +1,9 @@
 """Dependency Injection for hexagonal architecture."""
 
-from fastapi import Depends
-
 from core.ports.llm_client_port import LLMClientPort
 from core.ports.memory_port import MemoryPort
 from application.services.chat_service import ChatService
-from adapters.llm_providers.groq_llm_adapter import GroqLLMAdapter
+from adapters.llm_providers.groq import GroqLLMAdapter
 from adapters.memory.in_memory_adapter import InMemoryMemoryAdapter
 
 
@@ -35,8 +33,5 @@ def get_chat_service() -> ChatService:
     """Get chat service instance."""
     global _chat_service
     if _chat_service is None:
-        _chat_service = ChatService(
-            llm_client=get_llm_client(),
-            memory=get_memory()
-        )
+        _chat_service = ChatService(llm_client=get_llm_client(), memory=get_memory())
     return _chat_service
