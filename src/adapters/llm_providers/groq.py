@@ -62,13 +62,14 @@ class GroqLLMAdapter(LLMClientPort):
                 yield {"content": chunk.content, "thread_id": thread_id or "default"}
 
     async def chat_completion(
-        self, messages: List[Dict[str, Any]], thread_id: Optional[str] = None
+        self, messages: List[Dict[str, Any]], thread_id: Optional[str] = None, model: Optional[str] = None
     ) -> Dict[str, Any]:
         """Non-streaming chat completion using Groq.
         
         Args:
             messages: List of chat messages
             thread_id: Optional thread ID for conversation context
+            model: Optional model name to override default
             
         Returns:
             Dictionary containing response and thread_id
@@ -83,8 +84,20 @@ class GroqLLMAdapter(LLMClientPort):
             elif message["role"] == "system":
                 langchain_messages.append(SystemMessage(content=message["content"]))
         
-        # Get the response
-        response = self.llm.invoke(langchain_messages)
+        # Use specified model or default
+        if model:
+            # Create a temporary LLM instance with the specified model
+            from langchain_groq import ChatGroq
+            temp_llm = ChatGroq(
+                groq_api_key=settings.groq_api_key,
+                model_name=model,
+                temperature=0.7,
+                streaming=False,
+            )
+            response = temp_llm.invoke(langchain_messages)
+        else:
+            # Use the default LLM instance
+            response = self.llm.invoke(langchain_messages)
         
         return {
             "response": response.content,

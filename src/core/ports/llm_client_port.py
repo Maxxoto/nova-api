@@ -36,13 +36,14 @@ class LLMClientPort(ABC):
     
     @abstractmethod
     async def chat_completion(
-        self, messages: List[Dict[str, Any]], thread_id: Optional[str] = None
+        self, messages: List[Dict[str, Any]], thread_id: Optional[str] = None, model: Optional[str] = None
     ) -> Dict[str, Any]:
         """Non-streaming chat completion with memory context.
         
         Args:
             messages: List of chat messages
             thread_id: Optional thread ID for conversation context
+            model: Optional model name to override default
             
         Returns:
             Dictionary containing response, thread_id, and memory status

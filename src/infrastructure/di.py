@@ -5,7 +5,7 @@ from core.ports.memory_port import MemoryPort
 from application.services.chat_service import ChatService
 from adapters.llm_providers.groq import GroqLLMAdapter
 from adapters.memory.in_memory_adapter import InMemoryMemoryAdapter
-
+from infrastructure.memory_di import get_thread_memory, get_longterm_memory_store
 
 # Create singleton instances
 _llm_client: LLMClientPort = None
@@ -25,7 +25,11 @@ def get_memory() -> MemoryPort:
     """Get memory instance."""
     global _memory
     if _memory is None:
-        _memory = InMemoryMemoryAdapter()
+        _memory = InMemoryMemoryAdapter(
+            llm_client=get_llm_client(),
+            thread_memory_saver=get_thread_memory(),
+            longterm_memory_store=get_longterm_memory_store()
+        )  # Inject the LLM client and memory stores here
     return _memory
 
 

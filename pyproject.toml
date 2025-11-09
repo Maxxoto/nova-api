@@ -38,6 +38,9 @@ dependencies = [
     "pytest-asyncio>=1.2.0",
     "pytest>=8.4.2",
     "langgraph-cli[inmem]>=0.4.4",
+    "langchain-ollama>=1.0.0",
+    "langmem>=0.0.30",
+    "opik>=1.9.3",
 ]
 
 [project.optional-dependencies]
