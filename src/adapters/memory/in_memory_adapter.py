@@ -71,7 +71,7 @@ class InMemoryMemoryAdapter(MemoryPort):
                 {
                     "query": f"conversation history for user {user_id}",
                 },
-                config={"configurable": {"thread_id": user_id}},
+                config={"configurable": {"user_id": user_id}},
             )
 
             # TODO: MAKE IT AUTONOMOUS WITH SLM
@@ -107,8 +107,8 @@ class InMemoryMemoryAdapter(MemoryPort):
                 {
                     "action": "create",
                     "content": content,
-                    "configurable": {"user_id": user_id},
-                }
+                },
+                config={"configurable": {"user_id": user_id}},
             )
             logger.info(f"Stored long-term memory for user {user_id}")
             return True
