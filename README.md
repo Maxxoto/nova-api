@@ -13,8 +13,8 @@ This project follows Hexagonal Architecture with clear separation of concerns:
 - *No external dependencies*
 
 ### Application Layer (Use Cases)
-- **Use Cases** - Business logic
-- **Services** - Application logic and function
+- **Use Cases** - Business logic (e.g., `ChatService`, `HandleUserPrompt`)
+- **Services** - Application orchestration and workflow logic
 - *Depends only on Core ports*
 
 ### Adapters Layer (Infrastructure)

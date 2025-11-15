@@ -6,7 +6,7 @@ from fastapi import APIRouter, Request, Depends
 from sse_starlette.sse import EventSourceResponse
 
 from domain.entities.chat_message import ChatCompletionRequest
-from application.services.chat_service import ChatService
+from application.usecases.chat_service import ChatService
 
 
 # Create routers
