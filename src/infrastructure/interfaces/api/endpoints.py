@@ -14,11 +14,11 @@ chat_router = APIRouter(prefix="/sse", tags=["chat"])
 
 
 # Dependency for ChatService
-def get_chat_service() -> ChatService:
+async def get_chat_service() -> ChatService:
     """Get chat service instance to avoid circular imports."""
     from infrastructure.di import get_chat_service as _get_chat_service
 
-    return _get_chat_service()
+    return await _get_chat_service()
 
 
 @chat_router.post("/chat-completion")

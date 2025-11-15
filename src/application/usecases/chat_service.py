@@ -10,10 +10,15 @@ from domain.ports.memory_port import MemoryPort
 class ChatService:
     """Chat service orchestrating LLM and memory interactions."""
 
-    def __init__(self, llm_client: LLMClientPort, memory: MemoryPort):
+    def __init__(self, llm_client: LLMClientPort, memory: MemoryPort, thread_memory=None, longterm_memory=None):
         self.llm_client = llm_client
         self.memory = memory
-        self.orchestrator = LangGraphOrchestrator(llm_client, memory)
+        self.orchestrator = LangGraphOrchestrator(
+            llm_client,
+            memory,
+            thread_memory=thread_memory,
+            longterm_memory=longterm_memory
+        )
 
     async def stream_chat_completion(
         self, messages: List[Dict[str, Any]], thread_id: Optional[str] = None

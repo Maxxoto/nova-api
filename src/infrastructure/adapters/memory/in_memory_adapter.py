@@ -3,8 +3,8 @@
 import logging
 from typing import List, Dict, Any, Optional
 
+from langchain_core.stores import BaseStore
 from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.store.memory import InMemoryStore
 from langmem import create_manage_memory_tool, create_search_memory_tool
 
 from domain.ports.memory_port import MemoryPort
@@ -21,7 +21,7 @@ class InMemoryMemoryAdapter(MemoryPort):
         self,
         llm_client: LLMClientPort,
         thread_memory_saver: InMemorySaver,
-        longterm_memory_store: InMemoryStore,
+        longterm_memory_store: BaseStore,
     ):
         self.memory = thread_memory_saver
         self.lt_memory = longterm_memory_store
@@ -63,32 +63,30 @@ class InMemoryMemoryAdapter(MemoryPort):
     async def get_long_term_summary(
         self, user_id: str, max_tokens: int = 500
     ) -> Optional[str]:
-        # TODO: NEED TO REWORK THIS
         """Retrieve a summarized version of the long-term conversation history for a user using LangMem."""
         try:
             # Use LangMem search tool to retrieve relevant long-term memory
-            search_result = self.search_memory_tool.invoke(
+            # Search for general conversation memories for this user
+            logger.info(f"Searching for memories for user: {user_id}")
+            search_result = await self.search_memory_tool.ainvoke(
                 {
-                    "query": f"conversation history for user {user_id}",
+                    "query": f"user {user_id} conversation memories preferences history",
                 },
                 config={"configurable": {"user_id": user_id}},
             )
 
-            # TODO: MAKE IT AUTONOMOUS WITH SLM
-            if search_result and hasattr(search_result, "items"):
-                # Format the retrieved memories into a summary
-                memory_summary = "Relevant long-term memories:\n"
-                for i, item in enumerate(search_result.items[:3], 1):  # Top 3 memories
-                    if hasattr(item, "value") and isinstance(item.value, dict):
-                        content = item.value.get("content", "")
-                        memory_summary += f"{i}. {content}\n"
+            logger.info(f"Search result type: {type(search_result)}")
+            logger.info(f"Search result: {search_result}")
 
-                return (
-                    memory_summary
-                    if memory_summary != "Relevant long-term memories:\n"
-                    else None
-                )
+            # If we have actual search results, process them
+            if (
+                search_result
+                and isinstance(search_result, str)
+                and len(search_result.strip()) > 0
+            ):
+                return search_result
             else:
+                logger.info(f"No memories found for user {user_id}")
                 return None
 
         except Exception as e:
@@ -103,15 +101,21 @@ class InMemoryMemoryAdapter(MemoryPort):
         """Store a memory in long-term storage using LangMem."""
         try:
             # Use LangMem manage tool to store memory
-            self.manage_memory_tool.invoke(
+            logger.info(
+                f"Stored long-term memory for user {user_id}: {content[:50]}..."
+            )
+            result = await self.manage_memory_tool.ainvoke(
                 {
                     "action": "create",
                     "content": content,
                 },
                 config={"configurable": {"user_id": user_id}},
             )
-            logger.info(f"Stored long-term memory for user {user_id}")
+            logger.info(f"Memory storage tool result: {result}")
             return True
         except Exception as e:
             logger.error(f"Error storing long-term memory: {str(e)}")
+            import traceback
+
+            traceback.print_exc()
             return False

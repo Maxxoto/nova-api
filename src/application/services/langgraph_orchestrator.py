@@ -18,7 +18,6 @@ from domain.entities.agent_state import AgentState
 from domain.ports.llm_client_port import LLMClientPort
 from domain.ports.memory_port import MemoryPort
 
-from infrastructure.memory_di import get_thread_memory, get_longterm_memory_store
 from domain.entities.plan import Plan  # Import Plan
 
 
@@ -28,11 +27,17 @@ logger = logging.getLogger(__name__)
 class LangGraphOrchestrator:
     """Advanced LangGraph orchestrator with workflow nodes for AI agent."""
 
-    def __init__(self, llm_client: LLMClientPort, memory_adapter: MemoryPort):
+    def __init__(
+        self,
+        llm_client: LLMClientPort,
+        memory_adapter: MemoryPort,
+        thread_memory=None,
+        longterm_memory=None,
+    ):
         self.llm_client = llm_client
         self.memory_adapter = memory_adapter
-        self.memory = get_thread_memory()  # Call the function to get the instance
-        self.lt_memory = get_longterm_memory_store()
+        self.memory = thread_memory
+        self.lt_memory = longterm_memory
 
         # Initialize observability
         self._setup_observability()

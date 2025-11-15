@@ -17,13 +17,7 @@ class MemoryRecallNode:
         """Recall relevant conversation memory using LangMem for long-term memory."""
 
         user_id = state.get("user_id")
-        thread_id = state.get("thread_id")
         try:
-            # Get short-term conversation history from memory adapter
-            conversation_history = await self.memory_adapter.get_conversation_history(
-                thread_id
-            )
-
             # Get long-term memory summary using LangMem
             long_term_summary = await self.memory_adapter.get_long_term_summary(
                 user_id, max_tokens=300
@@ -31,15 +25,6 @@ class MemoryRecallNode:
 
             # Combine short-term and long-term memory
             recalled_memory = []
-
-            # Add short-term memory (recent conversation)
-            # TODO: Explore more about trim message and so on https://docs.langchain.com/oss/python/langchain/short-term-memory#trim-messages
-            if conversation_history:
-                relevant_memory = conversation_history[-5:]  # Last 5 messages
-                recalled_memory.extend(relevant_memory)
-                logger.info(
-                    f"Recalled {len(relevant_memory)} short-term memory entries"
-                )
 
             # Add long-term memory summary
             if long_term_summary:
@@ -49,7 +34,8 @@ class MemoryRecallNode:
                         "content": f"Long-term context summary: {long_term_summary}",
                     }
                 )
-                logger.info("Recalled long-term memory summary")
+                logger.info("Recalled long-term memory")
+                logger.info(long_term_summary)
 
             state["recalled_memory"] = recalled_memory
 

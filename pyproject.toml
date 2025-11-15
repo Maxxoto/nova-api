@@ -19,7 +19,6 @@ dependencies = [
     "sqlalchemy>=2.0.0",
     "alembic>=1.12.0",
     "redis>=5.0.0",
-    "psycopg2-binary>=2.9.0",
     # Security and authentication
     "python-jose[cryptography]>=3.3.0",
     "python-multipart>=0.0.6",
@@ -43,6 +42,8 @@ dependencies = [
     "opik>=1.9.3",
     "letta-client>=0.1.324",
     "langchain-pinecone>=0.2.13",
+    "langgraph-checkpoint-postgres>=3.0.1",
+    "psycopg[binary]>=3.2.12",
 ]
 
 [project.optional-dependencies]

@@ -24,9 +24,14 @@ class ChatInterface:
     """Interactive chat interface for Nova Agent."""
 
     def __init__(self):
-        self.chat_service = get_chat_service()
+        self.chat_service = None
         self.conversation_history: List[Dict[str, Any]] = []
         self.thread_id = None
+
+    async def initialize(self):
+        """Initialize the chat service"""
+        if self.chat_service is None:
+            self.chat_service = await get_chat_service()
 
     async def chat_streaming(self, message: str) -> str:
         """Send a message and stream the response."""
@@ -110,6 +115,7 @@ async def main():
     print("-" * 50)
 
     chat = ChatInterface()
+    await chat.initialize()
     streaming_mode = True
 
     while True:
