@@ -5,21 +5,21 @@ import uuid
 import os
 from typing import AsyncGenerator, Dict, Any, List, Optional
 
+from application.services.nodes.intent_detector import IntentDetector
+from application.services.nodes.llm_node import LLMNode
+from application.services.nodes.memory_recall_node import MemoryRecallNode
+from application.services.nodes.memory_write_node import MemoryWriteNode
 from langchain_core.messages import AIMessageChunk, SystemMessage
 from langgraph.func import START
 from langgraph.graph import StateGraph, END
 from opik.integrations.langchain import OpikTracer
 
-from core.entities.agent_state import AgentState
-from core.ports.llm_client_port import LLMClientPort
-from core.ports.memory_port import MemoryPort
+from domain.entities.agent_state import AgentState
+from domain.ports.llm_client_port import LLMClientPort
+from domain.ports.memory_port import MemoryPort
 
-from .intent_detector import IntentDetector
-from .memory_recall_node import MemoryRecallNode
-from .llm_node import LLMNode
-from .memory_write_node import MemoryWriteNode
 from infrastructure.memory_di import get_thread_memory, get_longterm_memory_store
-from core.entities.plan import Plan  # Import Plan
+from domain.entities.plan import Plan  # Import Plan
 
 
 logger = logging.getLogger(__name__)

@@ -1,9 +1,9 @@
 """Intent Detector Service for AI agent workflow."""
 
 import logging
-from core.entities.agent_state import AgentState
-from core.ports.llm_client_port import LLMClientPort
-from core.parsers.think_cleaner_parser import ThinkCleanerParser
+from domain.entities.agent_state import AgentState
+from domain.ports.llm_client_port import LLMClientPort
+from domain.parsers.think_cleaner_parser import ThinkCleanerParser
 
 logger = logging.getLogger(__name__)
 

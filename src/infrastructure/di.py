@@ -1,10 +1,10 @@
 """Dependency Injection for hexagonal architecture."""
 
-from core.ports.llm_client_port import LLMClientPort
-from core.ports.memory_port import MemoryPort
+from domain.ports.llm_client_port import LLMClientPort
+from domain.ports.memory_port import MemoryPort
 from application.services.chat_service import ChatService
-from adapters.llm_providers.groq import GroqLLMAdapter
-from adapters.memory.in_memory_adapter import InMemoryMemoryAdapter
+from infrastructure.adapters.llm_providers.groq import GroqLLMAdapter
+from infrastructure.adapters.memory.in_memory_adapter import InMemoryMemoryAdapter
 from infrastructure.memory_di import get_thread_memory, get_longterm_memory_store
 
 # Create singleton instances

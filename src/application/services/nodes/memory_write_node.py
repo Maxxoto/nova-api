@@ -2,8 +2,8 @@
 
 import logging
 from typing import List, Dict, Any
-from core.entities.agent_state import AgentState
-from core.ports.memory_port import MemoryPort
+from domain.entities.agent_state import AgentState
+from domain.ports.memory_port import MemoryPort
 
 logger = logging.getLogger(__name__)
 

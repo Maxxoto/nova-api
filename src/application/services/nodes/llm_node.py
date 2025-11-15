@@ -1,8 +1,8 @@
 """LLM Node for AI agent workflow."""
 
 import logging
-from core.entities.agent_state import AgentState
-from core.ports.llm_client_port import LLMClientPort
+from domain.entities.agent_state import AgentState
+from domain.ports.llm_client_port import LLMClientPort
 from langchain_core.messages import AIMessage
 
 logger = logging.getLogger(__name__)

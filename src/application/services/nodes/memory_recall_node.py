@@ -1,8 +1,8 @@
 """Memory Recall Node for AI agent workflow with LangMem integration."""
 
 import logging
-from core.entities.agent_state import AgentState
-from core.ports.memory_port import MemoryPort
+from domain.entities.agent_state import AgentState
+from domain.ports.memory_port import MemoryPort
 
 logger = logging.getLogger(__name__)
 

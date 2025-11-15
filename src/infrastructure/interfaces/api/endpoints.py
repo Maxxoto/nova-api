@@ -5,7 +5,7 @@ import json
 from fastapi import APIRouter, Request, Depends
 from sse_starlette.sse import EventSourceResponse
 
-from core.entities.chat_message import ChatCompletionRequest
+from domain.entities.chat_message import ChatCompletionRequest
 from application.services.chat_service import ChatService
 
 

@@ -5,7 +5,7 @@ from typing import AsyncGenerator, Dict, Any, List, Optional
 
 from langchain_groq import ChatGroq
 
-from core.ports.llm_client_port import LLMClientPort
+from domain.ports.llm_client_port import LLMClientPort
 from infrastructure.config import settings
 
 

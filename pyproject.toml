@@ -41,6 +41,7 @@ dependencies = [
     "langchain-ollama>=1.0.0",
     "langmem>=0.0.30",
     "opik>=1.9.3",
+    "letta-client>=0.1.324",
 ]
 
 [project.optional-dependencies]

@@ -7,8 +7,8 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.store.memory import InMemoryStore
 from langmem import create_manage_memory_tool, create_search_memory_tool
 
-from core.ports.memory_port import MemoryPort
-from core.ports.llm_client_port import LLMClientPort
+from domain.ports.memory_port import MemoryPort
+from domain.ports.llm_client_port import LLMClientPort
 
 
 logger = logging.getLogger(__name__)

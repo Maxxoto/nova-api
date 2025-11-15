@@ -3,8 +3,8 @@
 from typing import AsyncGenerator, Dict, Any, List, Optional
 
 from application.services.langgraph_orchestrator import LangGraphOrchestrator
-from core.ports.llm_client_port import LLMClientPort
-from core.ports.memory_port import MemoryPort
+from domain.ports.llm_client_port import LLMClientPort
+from domain.ports.memory_port import MemoryPort
 
 
 class ChatService:
