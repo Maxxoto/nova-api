@@ -3,6 +3,7 @@
 import logging
 from typing import List, Dict, Any
 from domain.entities.agent_state import AgentState
+from domain.ports.llm_client_port import LLMClientPort
 from domain.ports.memory_port import MemoryPort
 
 logger = logging.getLogger(__name__)
@@ -11,7 +12,7 @@ logger = logging.getLogger(__name__)
 class MemoryWriteNode:
     """Node that writes conversation to memory using LangMem for long-term storage."""
 
-    def __init__(self, memory_adapter: MemoryPort):
+    def __init__(self, llm_client: LLMClientPort, memory_adapter: MemoryPort):
         self.memory_adapter = memory_adapter
 
     async def write_memory(self, state: AgentState, user_id: str) -> AgentState:
@@ -19,7 +20,7 @@ class MemoryWriteNode:
 
         try:
             # Get the latest messages
-            latest_messages = self._extract_latest_messages(state["messages"])
+            latest_messages = self._extract_latest_messages(state.messages)
 
             if not latest_messages:
                 logger.info("No new messages to store")
@@ -42,7 +43,7 @@ class MemoryWriteNode:
 
     async def execute_node(self, state: AgentState) -> AgentState:
         """Write conversation to memory using LangMem."""
-        user_id = state.get("user_id")
+        user_id = state.user_id
         try:
             # Use the MemoryWriteNode to write important memories
             state = await self.write_memory(state, user_id)

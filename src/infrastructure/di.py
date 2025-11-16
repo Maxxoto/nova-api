@@ -42,6 +42,7 @@ class DependencyContainer:
         """Get LLM client instance."""
         if self._llm_client is None:
             self._llm_client = GroqLLMAdapter()
+
         return self._llm_client
 
     async def get_longterm_memory_store(self) -> BaseStore:

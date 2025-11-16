@@ -60,7 +60,7 @@ class InMemoryMemoryAdapter(MemoryPort):
         except Exception:
             return False
 
-    async def get_long_term_summary(
+    async def get_longterm_memory(
         self, user_id: str, max_tokens: int = 500
     ) -> Optional[str]:
         """Retrieve a summarized version of the long-term conversation history for a user using LangMem."""
@@ -75,8 +75,8 @@ class InMemoryMemoryAdapter(MemoryPort):
                 config={"configurable": {"user_id": user_id}},
             )
 
-            logger.info(f"Search result type: {type(search_result)}")
-            logger.info(f"Search result: {search_result}")
+            logger.debug(f"Search result type: {type(search_result)}")
+            logger.debug(f"Search result: {search_result}")
 
             # If we have actual search results, process them
             if (
@@ -111,11 +111,8 @@ class InMemoryMemoryAdapter(MemoryPort):
                 },
                 config={"configurable": {"user_id": user_id}},
             )
-            logger.info(f"Memory storage tool result: {result}")
+            logger.debug(f"Memory storage tool result: {result}")
             return True
         except Exception as e:
             logger.error(f"Error storing long-term memory: {str(e)}")
-            import traceback
-
-            traceback.print_exc()
             return False

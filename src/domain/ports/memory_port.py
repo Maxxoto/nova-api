@@ -22,7 +22,7 @@ class MemoryPort(ABC):
         pass
 
     @abstractmethod
-    async def get_long_term_summary(
+    async def get_longterm_memory(
         self, user_id: str, max_tokens: int = 500
     ) -> Optional[str]:
         """Retrieve a summarized version of the long-term conversation history for a thread.

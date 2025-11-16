@@ -11,9 +11,8 @@ logger = logging.getLogger(__name__)
 class IntentDetector:
     """Detects user intent from messages using LLM for autonomous classification."""
 
-    def __init__(self, llm_client: LLMClientPort, model: str = "openai/gpt-oss-20b"):
+    def __init__(self, llm_client: LLMClientPort):
         self.llm_client = llm_client
-        self.model = model
         self.think_cleaner = ThinkCleanerParser()
 
     async def detect_intent(self, state: AgentState) -> AgentState:
@@ -21,7 +20,7 @@ class IntentDetector:
 
         # Get the latest user message
         latest_message = None
-        for msg in reversed(state["messages"]):
+        for msg in reversed(state.messages):
             if hasattr(msg, "type") and msg.type == "human":
                 latest_message = msg.content
                 break
@@ -33,13 +32,12 @@ class IntentDetector:
         intent_prompt = f"""
         Analyze the following user message and classify its intent. Choose ONE of these categories:
 
-        - "memory_recall": The user wants to recall or reference previous conversations, memories, or history
         - "planning": The user wants help with planning, strategy, step-by-step approaches, or complex tasks
-        - "general_chat": The user wants general conversation, simple questions, or assistance without specific memory or planning needs
+        - "general_chat": The user wants general conversation, simple questions, or assistance without specific planning needs
 
         User message: "{latest_message}"
 
-        Respond with ONLY the category name (memory_recall, planning, or general_chat) and nothing else.
+        Respond with ONLY the category name (planning or general_chat) and nothing else.
         """
 
         try:
@@ -52,36 +50,28 @@ class IntentDetector:
                     },
                     {"role": "user", "content": intent_prompt},
                 ],
-                model=self.model,
+                streaming=False,
             )
 
             # Clean the response from <think> tokens
             cleaned_response = self.think_cleaner.parse(response["response"])
             intent = cleaned_response.strip().lower()
 
-            logger.debug("Raw Response: " + response["response"])
             # Validate and map intent
-            if intent == "memory_recall":
-                state["needs_memory_recall"] = True
-                state["needs_planning"] = False
-                state["intent"] = "memory_recall"
-            elif intent == "planning":
-                state["needs_memory_recall"] = False
-                state["needs_planning"] = True
-                state["intent"] = "planning"
+            if intent == "planning":
+                state.needs_planning = True
+                state.intent = "planning"
             else:
                 # Default to general_chat for any other response
-                state["needs_memory_recall"] = False
-                state["needs_planning"] = False
-                state["intent"] = "general_chat"
+                state.needs_planning = False
+                state.intent = "general_chat"
 
-            logger.info(f"LLM detected intent: {state['intent']}")
+            logger.info(f"LLM detected intent: {state.intent}")
 
         except Exception as e:
             logger.error(f"Error detecting intent with LLM: {str(e)}")
             # Fallback to general_chat on error
-            state["needs_memory_recall"] = False
-            state["needs_planning"] = False
-            state["intent"] = "general_chat"
+            state.needs_planning = False
+            state.intent = "general_chat"
 
         return state

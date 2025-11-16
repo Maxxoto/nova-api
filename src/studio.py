@@ -19,12 +19,12 @@ def create_agent():
     from langgraph.graph import StateGraph, START, END
     from domain.entities.agent_state import AgentState
 
-    def agent_node(state: dict):
+    def agent_node(state: AgentState):
         system_prompt = (
             "You are a helpful AI assistant. Provide clear, concise, and helpful responses. "
             "Use the conversation history to maintain context and provide relevant responses."
         )
-        messages = state["messages"]
+        messages = state.messages
         # Ensure system_prompt is included in the conversation
         if messages and not isinstance(messages[0], SystemMessage):
             messages_to_send = [system_prompt] + messages
